@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de la Conexión</title>
+</head>
+<body>
+    <h1>Estado de la Conexión a la Base de Datos</h1>
+    <button id="checkConnectionBtn">Verificar conexión a la base de datos</button>
+    <div id="connectionStatus"></div>
+
+    <script>
+        function showConnectionStatus(connected, message) {
+            const connectionStatus = document.getElementById('connectionStatus');
+            connectionStatus.innerHTML = `<p style="color: ${connected ? 'green' : 'red'};">${message}</p>`;
+            if (!connected) {
+                alert('¡Alerta! ' + message); // Alerta si la conexión falla
+            }
+        }
+
+        function checkDatabaseConnection() {
+            // Hacemos una solicitud GET a la ruta /status
+            fetch('http://localhost:3000/status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la conexión con el servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showConnectionStatus(data.connected, data.message); // Muestra el estado de conexión
+                })
+                .catch(error => {
+                    console.error('Error al verificar la conexión:', error);
+                    showConnectionStatus(false, 'No se pudo verificar la conexión: ' + error.message); // Muestra el error en la interfaz
+                });
+        }
+
+        // Verificar la conexión al cargar la página
+        window.onload = checkDatabaseConnection;
+
+        // Agregar el evento click para el botón
+        document.getElementById('checkConnectionBtn').addEventListener('click', checkDatabaseConnection);
+    </script>
+</body>
+</html>
